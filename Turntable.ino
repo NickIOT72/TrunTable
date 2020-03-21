@@ -31,7 +31,7 @@ int SeguimientoMov = 0;
 int ContadorRotacion = 1;
 #define ValorMinPulsos 0
 #define ValorMaxPulsos 200
-#define ReducterVal 1.8
+#define ReducterVal 1
 //OLED Color
 #define BLACK 0
 #define WHITE 1
@@ -232,8 +232,58 @@ void timerInterupt()
 {
   if (AutorizarGiro == true)
   {
-    /*
-    if (UltimoValorDePulsos > SeguimientoMov)
+    //ContadorGiro = 0;
+    if (digitalRead(SWITCH) == 0)
+    {
+      AutorizarGiro = false;
+    }
+  }
+  if (NumeroDePantalla == 4)
+  {
+    ContadorPantalla4++;
+    MostrarConteo = ContadorPantalla4 / 20;
+  }
+  if (NumeroDePantalla == 5)
+  {
+    if (!PermitirMensajeExtra)
+    {
+      int DirG = 0;
+      if (AnguloActual > AngulosPantalla5[NumeroAnguloActual-1])
+      {
+        ContadorP5Ang--;
+        DirG = 1;
+        RotarMotor(DirG);
+      }
+      else if (AnguloActual < AngulosPantalla5[NumeroAnguloActual-1])
+      {
+        ContadorP5Ang++;
+        DirG = 2;
+        RotarMotor(DirG);
+      }
+      AnguloActual = ContadorP5Ang*ReducterVal;
+      if (AnguloActual > 359)
+      {
+        AnguloActual = 0;
+        ContadorP5Ang = 0;
+      }
+      else if (AnguloActual < 0)
+      {
+        AnguloActual = 359;
+        ContadorP5Ang = 359;
+      }
+      if (AnguloActual == AngulosPantalla5[NumeroAnguloActual-1])
+      {
+        PermitirMensajeExtra = true;
+        RotarMotor(DirG);
+      }
+    }
+    
+  }
+}
+
+void RotarMotor(int a)
+{
+    if (a == 1)
     {
       if (ContadorRotacion == 1)
       {
@@ -258,7 +308,7 @@ void timerInterupt()
       }
       UltimoValorDePulsos--;
     }
-    else if (UltimoValorDePulsos < SeguimientoMov)
+    else if (a == 2)
     {
       if (ContadorRotacion == 1)
       {
@@ -284,56 +334,11 @@ void timerInterupt()
       UltimoValorDePulsos++;
       //Serial.println("Cont:" + String(UltimoValorDePulsos));
     }
-    else if (UltimoValorDePulsos == SeguimientoMov)
+    else if (a == 0)
     {
       ApagarSalidas();
-      AutorizarGiro = false;
-    }*/
-    //ContadorGiro = 0;
-    if (digitalRead(SWITCH) == 0)
-    {
-      //Serial.println(NumeroDePantalla);
-      /*Serial.println(StrLabel[NumeroDePantalla - 1][0]);
-      Serial.println(StrLabel[NumeroDePantalla - 1][1]);
-      Serial.println(StrLabel[NumeroDePantalla - 1][2]);*/
-      AutorizarGiro = false;
+      //AutorizarGiro = false;
     }
-  }
-  if (NumeroDePantalla == 4)
-  {
-    ContadorPantalla4++;
-    MostrarConteo = ContadorPantalla4 / 20;
-  }
-  if (NumeroDePantalla == 5)
-  {
-    if (!PermitirMensajeExtra)
-    {
-      if (AnguloActual > AngulosPantalla5[NumeroAnguloActual-1])
-      {
-        ContadorP5Ang--;
-      }
-      else if (AnguloActual < AngulosPantalla5[NumeroAnguloActual-1])
-      {
-        ContadorP5Ang++;
-      }
-      AnguloActual = ContadorP5Ang/10;
-      if (AnguloActual > 359)
-      {
-        AnguloActual = 0;
-        ContadorP5Ang = 0;
-      }
-      else if (AnguloActual < 0)
-      {
-        AnguloActual = 359;
-        ContadorP5Ang = 359*10;
-      }
-      if (AnguloActual == AngulosPantalla5[NumeroAnguloActual-1] )
-      {
-        PermitirMensajeExtra = true;
-      }
-    }
-    
-  }
 }
 
 void setup()
@@ -560,6 +565,7 @@ void SeleccionPantallas()
     ContadorP5Ang = 0;
     NumeroDePantalla = 1;
     UltimaPantalla = 5;
+    ResetPantalla();
     break;
   default:
     break;
@@ -767,7 +773,7 @@ void MostrarString(int a, int k1, int Px, int Py, int b)
             }
             
           }
-          else if (DDD / (pow(10, (11 - y))) == 0 && y == 11)
+          else if (DDD / (pow(10, (11 - y))) == 0 )
           {
             D[y] = '0';
           }
